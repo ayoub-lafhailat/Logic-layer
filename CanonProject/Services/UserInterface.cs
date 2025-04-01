@@ -1,28 +1,49 @@
 ﻿using System;
+using System.IO; // For Path combine if needed here
 
 public class UserInterface
 {
-    private APIController apiController;
+    private APIController _apiController;
 
     public UserInterface()
     {
-        apiController = new APIController();
+        _apiController = new APIController();
     }
 
-    public void GetUserInput()
+    public void GetUserInputAndGenerate()
     {
-        Console.Write("Enter number of pages: ");
-        int pages = int.Parse(Console.ReadLine());
+        Console.WriteLine("----- PDF Generator -----");
 
-        Console.Write("Enter size per page in bytes: ");
-        int pageSize = int.Parse(Console.ReadLine());
+        int pages = GetIntInput("Enter number of pages: ");
+        int pageSize = GetIntInput("Enter target content size per page (in bytes): ");
 
-        apiController.HandleRequest(pages, pageSize);
-        DisplayOutput();
+
+        if (pages > 0 && pageSize > 0)
+        {
+            long actualSize = _apiController.HandleRequest(pages, pageSize);
+
+            if (actualSize < 0)
+            {
+                Console.WriteLine("\nPDF generation process failed.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Invalid input provided.");
+        }
+        Console.WriteLine("\nPress Enter to exit.");
+        Console.ReadLine();
     }
 
-    public void DisplayOutput()
+    private int GetIntInput(string prompt)
     {
-        Console.WriteLine("PDF generated successfully.");
+        int value;
+        Console.Write(prompt);
+        while (!int.TryParse(Console.ReadLine(), out value) || value <= 0)
+        {
+            Console.WriteLine("Invalid input. Please enter a positive integer.");
+            Console.Write(prompt);
+        }
+        return value;
     }
 }

@@ -1,22 +1,26 @@
-﻿using iText.Layout.Element;
+﻿using System;
 
 public class PDFPage
 {
-    private int width;
-    private int height;
-    private int contentSize;
-    private PDFContent content;
+    private PDFContent _content;
+    private int _targetContentSize; // Target size contribution for generating this page's content
 
-    public PDFPage(int width, int height, int contentSize)
+    public PDFPage(int targetContentSizePerPage)
     {
-        this.width = width;
-        this.height = height;
-        this.contentSize = contentSize;
-        this.content = new PDFContent(contentSize);
+        // Store the target size used for generation, although estimation uses actual size later
+        _targetContentSize = Math.Max(1, targetContentSizePerPage); // Ensure at least 1
+        _content = new PDFContent(_targetContentSize);
     }
 
-    public Image RenderContent()
+    public byte[] GetContentImageData()
     {
-        return content.GenerateData();
+        return _content.GetImageData();
     }
+
+    public long GetActualContentImageDataSize()
+    {
+        return _content.ActualImageDataSize;
+    }
+
+    public int TargetContentSize => _targetContentSize; // Expose if needed
 }

@@ -2,15 +2,35 @@
 
 public class APIController
 {
-    private PDFGenerator pdfGenerator;
+    private PDFGenerator _pdfGenerator;
 
     public APIController()
     {
-        pdfGenerator = new PDFGenerator();
+        _pdfGenerator = new PDFGenerator();
     }
 
-    public void HandleRequest(int pages, int pageSize)
+    public long HandleRequest(int pages, int pageSize)
     {
-        pdfGenerator.GeneratePDF(pages, pageSize);
+        try
+        {
+            _pdfGenerator.Configure(pages, pageSize);
+            long actualSize = _pdfGenerator.GenerateAndSavePDF();
+            return actualSize;
+        }
+        catch (ArgumentOutOfRangeException argEx)
+        {
+            Console.WriteLine($"Configuration Error: {argEx.ParamName} - {argEx.Message}");
+            return -1;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during PDF generation request: {ex.Message}");
+            return -1;
+        }
+    }
+
+    public long GetEstimatedSize()
+    {
+        return _pdfGenerator?.EstimatedTotalSizeBytes ?? 0;
     }
 }
